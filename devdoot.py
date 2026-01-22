@@ -172,16 +172,59 @@ st.markdown("""
     """, unsafe_allow_html=True)
 
 # ==========================================
-# BLOCK 3: MODULES (Content) 📚
-# ==========================================
-MODULES = {
-    1: {"title": "MODULE 1: GENESIS (VARIABLES)", "content": "### 📡 Concept: The Container\nVariables store data.\n\n`agent = 'Devdoot'`\n`id = 7`", "quiz": {"q": "Which variable name is INVALID?", "options": ["_agent", "agent_1", "1st_agent", "AGENT"], "ans": "1st_agent"}},
-    2: {"title": "MODULE 2: LOGIC GATES (IF-ELSE)", "content": "### 📡 Concept: Decisions\n`if energy < 10: print('Sleep')`", "quiz": {"q": "What runs if 'if' fails?", "options": ["Error", "Code stops", "Runs 'else'", "Blast"], "ans": "Runs 'else'"}},
-    3: {"title": "MODULE 3: CYCLES (LOOPS)", "content": "### 📡 Concept: Automation\n`for i in range(5): print(i)`", "quiz": {"q": "range(0, 5) generates?", "options": ["4 items", "5 items", "6 items"], "ans": "5 items"}},
-    4: {"title": "MODULE 4: INVENTORY (LISTS)", "content": "### 📡 Concept: Lists\n`squad = ['A', 'B', 'C']`\nIndex starts at 0.", "quiz": {"q": "Get last item?", "options": ["list[0]", "list[-1]", "list[end]"], "ans": "list[-1]"}},
-    5: {"title": "MODULE 5: TOOLS (FUNCTIONS)", "content": "### 📡 Concept: Functions\n`def action(): return 'Done'`", "quiz": {"q": "Keyword for function?", "options": ["func", "def", "define"], "ans": "def"}},
-    6: {"title": "MODULE 6: ERROR HANDLING", "content": "### 📡 Concept: Safety\n`try: ... except: ...`", "quiz": {"q": "Catches error?", "options": ["try", "catch", "except"], "ans": "except"}}
-}
+# --- TAB 3: TRAINING (UPGRADED UI) ---
+with tabs[2]:
+    st.title("ACADEMY OF CODE")
+    st.markdown("*> Complete missions in the Code Lab, then pass the Quiz to level up.*")
+    
+    mod_tabs = st.tabs([f"MOD {i}" for i in MODULES])
+    
+    for i, tab in enumerate(mod_tabs):
+        m = i + 1
+        with tab:
+            if lvl < m: 
+                st.error(f"🔒 ACCESS DENIED. CLEAR MODULE {m-1} TO UNLOCK.")
+                st.image("https://media.giphy.com/media/3o7aTskHEUdgCQAXde/giphy.gif", width=300) # Optional Lock GIF
+            else:
+                d = MODULES[m]
+                
+                # 1. THEORY SECTION
+                st.markdown(f"## {d['title']}")
+                st.info("📖 STUDY MATERIAL")
+                st.markdown(d['theory'])
+                st.divider()
+                
+                # 2. MISSION SECTION
+                st.error("💀 PRACTICAL MISSION")
+                st.markdown(d['mission'])
+                
+                # 3. HINT SYSTEM
+                with st.expander("💡 STUCK? OPEN TACTICAL HINT"):
+                    st.warning(f"**INTEL:** {d['hint']}")
+                
+                st.divider()
+                
+                # 4. QUIZ SECTION
+                st.success("✅ SYSTEM CHECK (GET XP)")
+                q = d['quiz']
+                st.write(f"**Q:** {q['q']}")
+                ans = st.radio("Select Protocol:", q['options'], key=m)
+                
+                if st.button(f"SUBMIT DATA {m}"):
+                    if ans == q['quiz']['ans'] if isinstance(q, dict) and 'quiz' in q else q['ans']: # Safety check
+                        st.balloons()
+                        st.toast(f"MISSION ACCOMPLISHED! +100 XP", icon="🎖️")
+                        
+                        # Logic to prevent farming XP on same level
+                        if st.session_state['level'] == m:
+                             st.session_state['xp'] += 100
+                             st.session_state['level'] = m + 1
+                             update_xp_level(user, m+1, st.session_state['xp'])
+                             time.sleep(2); st.rerun()
+                        else:
+                            st.info("Already Completed. Reviewing material allowed.")
+                    else: 
+                        st.toast("❌ ACCESS DENIED. INCORRECT ANSWER.", icon="⚠️")
 
 # ==========================================
 # BLOCK 4: LOGIN SYSTEM 🔐
@@ -351,3 +394,4 @@ if st.session_state['role'] == "Admin":
         st.dataframe(load_data("Users"), use_container_width=True)
         st.markdown("### 📝 Full Attendance Log")
         st.dataframe(load_data("Attendance"), use_container_width=True)
+
